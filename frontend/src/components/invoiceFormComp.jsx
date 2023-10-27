@@ -1,7 +1,10 @@
-import { Box, Heading, Input } from "@chakra-ui/react";
+import { Box, Heading, Input, useToast } from "@chakra-ui/react";
 import { useState } from "react";
+import { DBurl } from "../utils";
+import axios from "axios";
 
-export default function DashboardComp(){
+export default function InvoiceFormComp(){
+    const toast = useToast();
     const[date,setDate] = useState('');
     const[number,setNumber]  = useState('');
     const[amount,setAmount] = useState('');
@@ -13,7 +16,24 @@ export default function DashboardComp(){
             invoiceNumber : number,
             amount : amount
         }
-        console.log(invoiceData);
+        axios.post(`${DBurl}/addinvoice`,invoiceData)
+        .then(res=>
+            toast({
+                title: res.data.msg,
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+              })
+            )
+        .catch(err=>
+            toast({
+                title: 'Error occured while adding invoice',
+                description: "Please check console",
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+              })
+            )
     }
     return(
         <Box w={'60%'} margin={'auto'}>

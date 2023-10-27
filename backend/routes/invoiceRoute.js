@@ -4,14 +4,22 @@ const invoiceRouter = Router();
 
 invoiceRouter.get('/',async(req,res)=>{
     let allInvoices = await invoiceModel.find()
+    res.send({msg:'All Invoices',data:allInvoices});
+});
+
+invoiceRouter.get('/year=:year&invoiceNumber=:invoiceNumber&date=:date',async(req,res)=>{
+    const year = req.params.year;
+    const invoiceNum = req.params.invoiceNumber;
+    const date = req.params.date
+    
+    let allInvoices = await invoiceModel.find({year:Number(year),invoiceNumber:Number(invoiceNum),date:date})
     res.send({msg:'All Invoices',data:allInvoices})
 });
 
 invoiceRouter.post('/addinvoice',async(req,res)=>{
     const{date,invoiceNumber,amount}  = req.body;
     let year = date.split('-')[0];
-    // let month = date.split('-')[1];
-    // let day = date.split('-')[2];
+
     // getting all invoices having the same year.
     let filterByYear = await invoiceModel.find({year:year});
 
@@ -119,6 +127,22 @@ invoiceRouter.post('/addinvoice',async(req,res)=>{
         await invoice.save();
         res.send({msg:'success',data:invoice});
     }
+});
+
+invoiceRouter.patch("/updateinvoice/:invoiceNumber",async(req,res)=>{
+  let invoiceNum = Number(req.params.invoiceNumber);
+  console.log(invoiceNum,typeof(invoiceNum))
+  let {date,invoiceNumber,amount} = req.body;
+  let updateInvoice = await invoiceModel.findOneAndUpdate({invoiceNumber:invoiceNum},{$set:{date,invoiceNumber,amount}},{new:true});
+  console.log("res",updateInvoice)
+  await updateInvoice.save();
+  res.send({msg:"success",post:updateInvoice});
+});
+
+invoiceRouter.delete("/deleteinvoice/:invoiceNumber",async(req,res)=>{
+    let invoiceNumber = req.params.invoiceNumber;
+    let deleteInvoice = await invoiceModel.findOneAndDelete({invoiceNumber:invoiceNumber});
+  res.send({msg:"success",invoice:deleteInvoice})
 });
 
 

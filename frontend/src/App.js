@@ -1,5 +1,5 @@
 import './App.css';
-import { Box, Grid, GridItem, Heading, useToast } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, useToast } from '@chakra-ui/react';
 import InvoiceFormComp from './components/invoiceFormComp';
 import InvoiceComp from './components/invoiceComp';
 import { useEffect, useState } from 'react';
@@ -36,7 +36,8 @@ function App() {
 }
 
 const updateInvoice=(id)=>{
-  setToUpdate(id);
+  setToUpdate(id); // Using the id to update an invoice using the same form
+  window.scrollTo(0,0);
 }
 
 const filterInvoice=({e,date,year,number})=>{
@@ -87,19 +88,22 @@ const filterInvoice=({e,date,year,number})=>{
   },[invoiceData])
 
   return (
-    <Box className="App">
+    <Box className='App'>
       <InvoiceFormComp setToUpdate={setToUpdate} toUpdateID={toUpdate} />
-      <Heading w={'fit-content'} 
+      <Heading w={{base:'50%',sm:'50%',md:'30%',lg:'20%'}} 
       border={'3px solid white'} 
       borderBottom={'0px'}
+      fontSize={'larger'}
       p={3}
       margin={'auto'}
-      marginTop={"2%"}>- * - * - Invoices - * - * -</Heading>
+      marginTop={"2%"}> Invoices </Heading>
       <FilterComp filterInvoice={filterInvoice} />
         <Grid 
         p={3}
-        templateColumns={'repeat(4,1fr)'} 
+        templateColumns={{sm:'repeat(2,1fr)',md:'repeat(3,1fr)',lg:'repeat(4,1fr)'}} 
         gap={5}>
+
+    {/* If filtered data is present, displaying that or else displaying all invoice data */}
         { filteredData.length? 
         filteredData?.map((ele)=>
         <GridItem backgroundColor={"black"} 

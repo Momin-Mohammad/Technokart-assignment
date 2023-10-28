@@ -1,7 +1,5 @@
 import { Box, Button, Input, useToast } from "@chakra-ui/react";
-import axios from "axios";
 import { useState } from "react";
-import { DBurl } from "../utils";
 
 export default function FilterComp({filterInvoice}){
     const toast = useToast();
@@ -17,24 +15,24 @@ export default function FilterComp({filterInvoice}){
             <form 
             onSubmit={(e)=>filterInvoice({e,year,date,number})}>
                 <Input
-                w={'auto'}
+                w={{sm:'70%',md:'50%',lg:'auto'}}
                 p={'2%'} value={date} 
                 onChange={(e)=>setDate(e.target.value)} type='date' placeholder='Enter Date'/>
 
                 <Input
-                w={'auto'}
+                w={{sm:'70%',md:'50%',lg:'auto'}}
                 p={'2%'} 
                 margin={"0% 2%"}
                 value={number} 
                 onChange={(e)=>setNumber(e.target.value)} type='number' placeholder='Invoice Number'/>
 
                 <Input 
-                w={'auto'}
+                w={{sm:'70%',md:'50%',lg:'auto'}}
                 p={'2%'} value={year} 
                 onChange={(e)=>setYear(e.target.value)} type='number' placeholder='Enter year'/>
+
                 <Button 
-                disabled={true}
-                w={'auto'} margin={"0% 2%"} type='submit'>Apply filter</Button>
+                w={{sm:'70%',md:'50%',lg:'auto'}} margin={"0% 2%"} type='submit'>Apply filter</Button>
             </form>
         </Box>
     )

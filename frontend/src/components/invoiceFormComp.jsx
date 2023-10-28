@@ -10,8 +10,8 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
     const[amount,setAmount] = useState('');
 
     useEffect(()=>{
-        console.log(toUpdateID)
-        if(toUpdateID){
+        // Using same form to Add new invoice and updating an invoice
+        if(toUpdateID){ // If toUpdateID(id of particular invoice) is present, using the form to update the invoice
             axios.get(`${DBurl}/${toUpdateID}`)
             .then(res=>{
                 setDate(res.data.data[0]?.date);
@@ -42,7 +42,7 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
             amount : amount
         }
 
-        if(toUpdateID){
+        if(toUpdateID){// If toUpdateID(id of particular invoice) is present, using the form to update the invoice
             console.log('Inside',toUpdateID)
             axios.patch(`${DBurl}/updateinvoice/${toUpdateID}`,invoiceData)
         .then(res=>
@@ -67,7 +67,7 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
               })}
             )
         }
-        else{
+        else{ // If toUpdateID(id of particular invoice) is not present, using the form to add a new invoice
         axios.post(`${DBurl}/addinvoice`,invoiceData)
         .then(res=>
             toast({
@@ -93,8 +93,8 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
         setAmount('');
     }
     return(
-        <Box w={'60%'} margin={'auto'}>
-            <Heading margin={"2% 0%"}>Invoice Form</Heading>
+        <Box w={{base:'75%',sm:'85%',md:'70%',lg:'60%'}} margin={'auto'}>
+            <Heading fontSize={'larger'} margin={"2% 0%"}>Invoice Form</Heading>
             <form onSubmit={generateInvoice}>
                 <Input required 
                 p={'2%'} fontSize={"larger"} margin={"1% 0%"} value={date} 
@@ -107,7 +107,7 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
                 <Input required 
                 p={'2%'} fontSize={"larger"} margin={"1% 0%"} value={amount} 
                 onChange={(e)=>setAmount(e.target.value)} type='number' placeholder='Enter Amount'/>
-                <Button fontWeight={'bold'} fontSize={"larger"} w={"50%"} margin={"2% 0%"} type='submit'>SUBMIT</Button>
+                <Button fontWeight={'bold'} fontSize={"larger"} w={"50%"} margin={"2% 0%"} type='submit'>{toUpdateID?'Update Invoice':'Add Invoice'}</Button>
             </form>
         </Box>
     )

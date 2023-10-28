@@ -1,6 +1,4 @@
 import { Box, Button, Text } from "@chakra-ui/react";
-import axios from "axios";
-import { DBurl } from "../utils";
 
 export default function InvoiceComp({id,date,number,amount,deleteInvoice,updateInvoice}){
 

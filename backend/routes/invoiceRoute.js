@@ -7,13 +7,10 @@ invoiceRouter.get('/',async(req,res)=>{
     res.send({msg:'All Invoices',data:allInvoices});
 });
 
-invoiceRouter.get('/year=:year&invoiceNumber=:invoiceNumber&date=:date',async(req,res)=>{
-    const year = req.params.year;
-    const invoiceNum = req.params.invoiceNumber;
-    const date = req.params.date
-    
-    let allInvoices = await invoiceModel.find({year:Number(year),invoiceNumber:Number(invoiceNum),date:date})
-    res.send({msg:'All Invoices',data:allInvoices})
+invoiceRouter.get('/:id',async(req,res)=>{
+    let id = req.params.id;
+    let invoices = await invoiceModel.find({_id:id})
+    res.send({msg:'All Invoices',data:invoices});
 });
 
 invoiceRouter.post('/addinvoice',async(req,res)=>{
@@ -76,7 +73,7 @@ invoiceRouter.post('/addinvoice',async(req,res)=>{
                 if(prevDate < currentDate && dateFormat === date){
                     let invoice = new invoiceModel({date,invoiceNumber,year:year,amount});
                     await invoice.save();
-                    res.send({msg:'success',data:invoice});
+                    res.send({msg:'Invoice Added',data:invoice});
                 }else{
                     res.send({msg:`Please enter date after ${filterByYear[smallerThanInvoiceNum].date}. Expected Date: ${dateFormat}`})
                 }
@@ -95,7 +92,7 @@ invoiceRouter.post('/addinvoice',async(req,res)=>{
                 if(nextDate > currentDate && dateFormat === date){
                     let invoice = new invoiceModel({date,invoiceNumber,year:year,amount});
                     await invoice.save();
-                    res.send({msg:'success',data:invoice});
+                    res.send({msg:'Invoice Added',data:invoice});
                 }else{
                     res.send({msg:`Please enter date before ${filterByYear[greaterThanInvoiceNum].date}. Expected Date: ${dateFormat}`})
                 }
@@ -114,7 +111,7 @@ invoiceRouter.post('/addinvoice',async(req,res)=>{
                 if(nextDate > currentDate && prevDate < currentDate && dateFormat===date){
                     let invoice = new invoiceModel({date,invoiceNumber,year:year,amount});
                     await invoice.save();
-                    res.send({msg:'success',data:invoice});
+                    res.send({msg:'Invoice Added',data:invoice});
                 }else{
                     res.send({msg:`Please enter date between ${filterByYear[smallerThanInvoiceNum].date} to ${filterByYear[greaterThanInvoiceNum].date}. Expected date: ${dateFormat}`})
                 }
@@ -125,24 +122,22 @@ invoiceRouter.post('/addinvoice',async(req,res)=>{
     else{ // If entry of the same year does not exist then adding it to DB
         let invoice = new invoiceModel({date,invoiceNumber,year:year,amount});
         await invoice.save();
-        res.send({msg:'success',data:invoice});
+        res.send({msg:'Invoice Added',data:invoice});
     }
 });
 
-invoiceRouter.patch("/updateinvoice/:invoiceNumber",async(req,res)=>{
-  let invoiceNum = Number(req.params.invoiceNumber);
-  console.log(invoiceNum,typeof(invoiceNum))
+invoiceRouter.patch("/updateinvoice/:id",async(req,res)=>{
+  let id = req.params.id;
   let {date,invoiceNumber,amount} = req.body;
-  let updateInvoice = await invoiceModel.findOneAndUpdate({invoiceNumber:invoiceNum},{$set:{date,invoiceNumber,amount}},{new:true});
-  console.log("res",updateInvoice)
+  let updateInvoice = await invoiceModel.findOneAndUpdate({_id:id},{$set:{date,invoiceNumber,amount}},{new:true});
   await updateInvoice.save();
-  res.send({msg:"success",post:updateInvoice});
+  res.send({msg:"Invoice updated",invoice:updateInvoice});
 });
 
-invoiceRouter.delete("/deleteinvoice/:invoiceNumber",async(req,res)=>{
-    let invoiceNumber = req.params.invoiceNumber;
-    let deleteInvoice = await invoiceModel.findOneAndDelete({invoiceNumber:invoiceNumber});
-  res.send({msg:"success",invoice:deleteInvoice})
+invoiceRouter.delete("/deleteinvoice/:id",async(req,res)=>{
+    let id = req.params.id;
+    let deleteInvoice = await invoiceModel.findOneAndDelete({_id:id});
+  res.send({msg:"Invoice deleted",invoice:deleteInvoice})
 });
 
 

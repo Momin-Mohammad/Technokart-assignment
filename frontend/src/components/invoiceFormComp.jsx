@@ -83,7 +83,17 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate,invoiceData,setI
         .then(res=>
            { 
             if(res.data.msg === 'Invoice Added'){
-                setInvoiceData([...invoiceData,invoiceDetails]);
+                axios.get(DBurl).then(res=>setInvoiceData(res.data.data))
+                .catch(err=>{
+                    console.log("Error:",err);
+            toast({
+                title: 'Error occured while adding invoice',
+                description: "Please check console",
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+              })
+                })
             } 
             toast({
                 title: res.data.msg,

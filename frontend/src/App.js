@@ -160,7 +160,7 @@ const filterInvoice=({e,date,year,number})=>{
         </GridItem>
         ) 
         :
-        invoiceData.lenth? invoiceData?.map((ele)=>
+        invoiceData?.map((ele)=>
         <GridItem backgroundColor={"black"} 
         borderRadius={"10px"}
         p={5} w={'100%'} 
@@ -173,11 +173,12 @@ const filterInvoice=({e,date,year,number})=>{
            updateInvoice={updateInvoice} />
         </GridItem>
         )
-        :
-        <NoDataComp />
         }
         </Grid>
 }
+    {
+      loading===false && invoiceData.length===0? <NoDataComp /> : null 
+    }
     </Box>
   );
 }

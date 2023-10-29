@@ -15,6 +15,7 @@ export default function FilterComp({filterInvoice}){
             <form 
             onSubmit={(e)=>filterInvoice({e,year,date,number})}>
                 <Input
+                color={"whitesmoke"}
                 w={{sm:'70%',md:'50%',lg:'auto'}}
                 p={'2%'} value={date} 
                 onChange={(e)=>setDate(e.target.value)} type='date' placeholder='Enter Date'/>
@@ -31,7 +32,7 @@ export default function FilterComp({filterInvoice}){
                 p={'2%'} value={year} 
                 onChange={(e)=>setYear(e.target.value)} type='number' placeholder='Enter year'/>
 
-                <Button 
+                <Button
                 w={{sm:'70%',md:'50%',lg:'auto'}} margin={"0% 2%"} type='submit'>Apply filter</Button>
             </form>
         </Box>

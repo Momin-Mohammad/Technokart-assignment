@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { DBurl } from "../utils";
 import axios from "axios";
 
-export default function InvoiceFormComp({toUpdateID,setToUpdate}){
+export default function InvoiceFormComp({toUpdateID,setToUpdate,invoiceData,setInvoiceData}){
     const toast = useToast();
     const[date,setDate] = useState('');
     const[number,setNumber]  = useState('');
@@ -36,23 +36,34 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
     const generateInvoice =(e)=>{
         e.preventDefault();
        
-        let invoiceData = {
+        let invoiceDetails = {
             date : date,
             invoiceNumber : number,
             amount : amount
         }
 
         if(toUpdateID){// If toUpdateID(id of particular invoice) is present, using the form to update the invoice
-            console.log('Inside',toUpdateID)
-            axios.patch(`${DBurl}/updateinvoice/${toUpdateID}`,invoiceData)
+            axios.patch(`${DBurl}/updateinvoice/${toUpdateID}`,invoiceDetails)
         .then(res=>
            { 
+            if(res.data.msg==="Invoice updated"){
+                let updatedInvoice = 
+              invoiceData.map((ele)=>
+              ele._id === toUpdateID?
+              {...ele,date:invoiceDetails.date,invoiceNumber:invoiceDetails.invoiceNumber,amount:invoiceDetails.amount}
+              :
+              ele
+              )
+              console.log(updatedInvoice)
+              setInvoiceData(updatedInvoice);
+            }
             toast({
                 title: res.data.msg,
                 status: 'success',
                 duration: 5000,
                 isClosable: true,
               })
+
               setToUpdate('');
             }
             )
@@ -68,14 +79,19 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
             )
         }
         else{ // If toUpdateID(id of particular invoice) is not present, using the form to add a new invoice
-        axios.post(`${DBurl}/addinvoice`,invoiceData)
+        axios.post(`${DBurl}/addinvoice`,invoiceDetails)
         .then(res=>
+           { 
+            if(res.data.msg === 'Invoice Added'){
+                setInvoiceData([...invoiceData,invoiceDetails]);
+            } 
             toast({
                 title: res.data.msg,
                 status: 'success',
                 duration: 5000,
                 isClosable: true,
               })
+            }
             )
         .catch(err=>
             {console.log("Error:",err);
@@ -93,10 +109,17 @@ export default function InvoiceFormComp({toUpdateID,setToUpdate}){
         setAmount('');
     }
     return(
-        <Box w={{base:'75%',sm:'85%',md:'70%',lg:'60%'}} margin={'auto'}>
-            <Heading fontSize={'larger'} margin={"2% 0%"}>Invoice Form</Heading>
+        <Box 
+        p={3}
+        border={'1px solid gray'}
+        borderRadius={'10px'}
+        w={{base:'75%',sm:'85%',md:'70%',lg:'60%'}}
+        backgroundColor={""}
+        margin={'auto'}>
+            <Heading fontSize={'larger'} margin={"0% 0% 2% 0%"}>Invoice Form</Heading>
             <form onSubmit={generateInvoice}>
                 <Input required 
+                color={"whitesmoke"}
                 p={'2%'} fontSize={"larger"} margin={"1% 0%"} value={date} 
                 onChange={(e)=>setDate(e.target.value)} type='date' placeholder='Enter Date'/>
 

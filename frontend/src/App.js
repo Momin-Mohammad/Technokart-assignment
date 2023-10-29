@@ -6,22 +6,29 @@ import { useEffect, useState } from 'react';
 import { DBurl } from './utils';
 import axios from 'axios';
 import FilterComp from './components/filterComp';
+import LoadingComp from './components/loadingComp';
+import NoDataComp from './components/noDataComp';
 
 function App() {
   const toast = useToast();
   const[invoiceData ,setInvoiceData] = useState([]);
   const[filteredData, setFilteredData] = useState([]);
-  const[toUpdate,setToUpdate] = useState('')
+  const[toUpdate,setToUpdate] = useState('');
+  const[loading,setLoading] = useState(false);
 
   const deleteInvoice=(id)=>{
     axios.delete(`${DBurl}/deleteinvoice/${id}`)
     .then(res=>
-      toast({
+      {
+        let invoices = invoiceData.filter((ele)=>ele._id!==id);
+        setInvoiceData(invoices);
+        toast({
         title: res.data.msg,
         status: 'success',
         duration: 5000,
         isClosable: true,
       })
+    }
       )
       .catch(err=>
         {console.log("Error:",err);
@@ -50,61 +57,95 @@ const filterInvoice=({e,date,year,number})=>{
       isClosable: true,
     })
   }
+
+  // Function to check whether invoice data based on the filtered is present or not.
+  function checkFilterResult(length,filteredInvoice){
+    if(!length){
+      toast({
+        title: 'Invoice with the filter is not present',
+        description: 'Showing all invoice data',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      })
+      setFilteredData([]);
+    }else{
+      setFilteredData(filteredInvoice);
+    }
+  }
+
   if(!date && !year){
   let filteredInvoice = invoiceData?.filter((ele)=>ele.invoiceNumber==number);
-  setFilteredData(filteredInvoice);
+  checkFilterResult(filteredInvoice.length,filteredInvoice);
   }else if(!date && !number){
     let filteredInvoice = invoiceData?.filter((ele)=>ele.year==year);
-    setFilteredData(filteredInvoice);
+    checkFilterResult(filteredInvoice.length,filteredInvoice);
     }else if(!year && !number){
       let filteredInvoice = invoiceData?.filter((ele)=>ele.date==date);
-      setFilteredData(filteredInvoice);
+      checkFilterResult(filteredInvoice.length,filteredInvoice);
       }else if(!year){
         let filteredInvoice = invoiceData?.filter((ele)=>ele.date==date && ele.invoiceNumber==number);
-        setFilteredData(filteredInvoice);
+        checkFilterResult(filteredInvoice.length,filteredInvoice);
         }else if(!number){
           let filteredInvoice = invoiceData?.filter((ele)=>ele.date==date && ele.year==year);
-          setFilteredData(filteredInvoice);
+          checkFilterResult(filteredInvoice.length,filteredInvoice);
           }else if(!date){
             let filteredInvoice = invoiceData?.filter((ele)=>ele.invoiceNumber==number && ele.year==year);
-            setFilteredData(filteredInvoice);
+            checkFilterResult(filteredInvoice.length,filteredInvoice);
             }
   
    
 }
 
   useEffect(()=>{
-    axios.get(DBurl).then(res=>setInvoiceData(res.data.data))
+    setLoading(true);
+    axios.get(DBurl).then(res=>{
+      setInvoiceData(res.data.data);
+      setLoading(false);
+    })
     .catch(err=>{
       console.log(err);
       toast({
         title: 'Error occured while fetching data',
-        description: "Please check console",
+        description: "Please check internet connection or check the console.",
         status: 'success',
         duration: 5000,
         isClosable: true,
       })
     })
-  },[invoiceData])
+  },[])
 
   return (
     <Box className='App'>
-      <InvoiceFormComp setToUpdate={setToUpdate} toUpdateID={toUpdate} />
+
+      {/* Form to add or update invoice */}
+      <InvoiceFormComp 
+      setToUpdate={setToUpdate} 
+      toUpdateID={toUpdate} 
+      invoiceData={invoiceData}
+      setInvoiceData={setInvoiceData} />
+
       <Heading w={{base:'50%',sm:'50%',md:'30%',lg:'20%'}} 
       border={'3px solid white'} 
       borderBottom={'0px'}
       fontSize={'larger'}
       p={3}
       margin={'auto'}
-      marginTop={"2%"}> Invoices </Heading>
+      marginTop={"4%"}> Invoices </Heading>
+
+      {/* Filter component */}
       <FilterComp filterInvoice={filterInvoice} />
+  {
+    loading?<LoadingComp />
+    :
         <Grid 
         p={3}
         templateColumns={{sm:'repeat(2,1fr)',md:'repeat(3,1fr)',lg:'repeat(4,1fr)'}} 
         gap={5}>
 
     {/* If filtered data is present, displaying that or else displaying all invoice data */}
-        { filteredData.length? 
+        { 
+        filteredData.length? 
         filteredData?.map((ele)=>
         <GridItem backgroundColor={"black"} 
         borderRadius={"10px"}
@@ -119,7 +160,7 @@ const filterInvoice=({e,date,year,number})=>{
         </GridItem>
         ) 
         :
-        invoiceData?.map((ele)=>
+        invoiceData.lenth? invoiceData?.map((ele)=>
         <GridItem backgroundColor={"black"} 
         borderRadius={"10px"}
         p={5} w={'100%'} 
@@ -132,9 +173,11 @@ const filterInvoice=({e,date,year,number})=>{
            updateInvoice={updateInvoice} />
         </GridItem>
         )
+        :
+        <NoDataComp />
         }
         </Grid>
-    
+}
     </Box>
   );
 }
